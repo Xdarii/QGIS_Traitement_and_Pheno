@@ -56,7 +56,7 @@
     <bool>false</bool>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="tabsClosable">
     <bool>false</bool>
@@ -137,8 +137,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>601</width>
-        <height>215</height>
+        <width>98</width>
+        <height>28</height>
        </rect>
       </property>
       <attribute name="label">
@@ -710,8 +710,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>601</width>
-        <height>215</height>
+        <width>98</width>
+        <height>28</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1058,6 +1058,9 @@
      </property>
     </widget>
     <widget class="QToolBox" name="parametrePheno">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -1153,7 +1156,7 @@
        </widget>
        <widget class="QFrame" name="frame_seuil">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="geometry">
          <rect>
@@ -1171,7 +1174,7 @@
         </property>
         <widget class="QDoubleSpinBox" name="seuilEOS">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1214,7 +1217,7 @@
         </widget>
         <widget class="QDoubleSpinBox" name="seuilSOS">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1255,6 +1258,10 @@
           <string>SOS</string>
          </property>
         </widget>
+        <zorder>label_eos</zorder>
+        <zorder>label_sos</zorder>
+        <zorder>seuilSOS</zorder>
+        <zorder>seuilEOS</zorder>
        </widget>
        <widget class="QRadioButton" name="radioButton_seuil">
         <property name="geometry">

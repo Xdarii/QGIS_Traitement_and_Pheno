@@ -28,8 +28,9 @@ from PyQt4 import QtGui
 import resources
 # Import the code for the dialog
 from metrique_phenologique_dialog import metriquePhenologiqueDialog
-import os.path
 import os
+import os.path
+
 from interpo_lineaire_DOY16jours import interpo_lineaire_DOY16jours
 from decoupage_et_serie_temporelle import decoupage_et_serie_temporelle
 from function_data_raster import*
@@ -92,7 +93,7 @@ class metriquePhenologique:
         self.dlg.pushButton_execution.clicked.connect(self.active_progressbar,1)
         self.dlg.pushButton_execution.clicked.connect(self.validation)
         
-        self.dlg.pushButton_execution_metrique.clicked.connect(self.active_progressbar,1)
+        self.dlg.pushButton_execution_metrique.clicked.connect(self.active_progressbar_metrique,1)
         self.dlg.pushButton_execution_metrique.clicked.connect(self.validationMetrique)
         
         self.dlg.radioButton_DOY.clicked.connect(self.selectionDOY)
@@ -254,6 +255,8 @@ class metriquePhenologique:
         Permet de deverrouiller le changement de seuil et permettre à l'utilisateur de saisir ses propres seuils
         """
         self.dlg.frame_seuil.setEnabled(1)
+        self.dlg.seuilEOS.setEnabled(1)
+        self.dlg.seuilSOS.setEnabled(1)
         
     def selectionNDVI(self):
         """
@@ -289,9 +292,33 @@ class metriquePhenologique:
             self.dlg.pushButton_execution.setEnabled(0)
             QApplication.processEvents()
         if inY==0:
+            QApplication.processEvents()
             QApplication.restoreOverrideCursor()
             self.dlg.pushButton_execution.setEnabled(1)
+            self.dlg.progressBar.setValue(0)
+    def active_progressbar_metrique(self,inY):
+        """
+        permet d'activer la barre de progression. Il desactive ensuite le bouton de validation
+        afin d'eviter à l'utilisateur de lancer une validation pendant que le programme tourne.
+        Elle permet aussi d'eviter de géler l'application.
+        
+        Entree:
+        inY: un booléen qui permet de dire si on active ou on desactive la barre.
+        
+        """
+        self.dlg.progressBar_metrique.setEnabled(inY)
+        if inY==1:
+            
+            QApplication.setOverrideCursor(Qt.WaitCursor)
+            self.dlg.pushButton_execution_metrique.setEnabled(0)
             QApplication.processEvents()
+        if inY==0:
+            QApplication.restoreOverrideCursor()
+            self.dlg.pushButton_execution_metrique.setEnabled(1)
+            QApplication.processEvents()
+            self.dlg.progressBar_metrique.setValue(0)
+                            
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -350,7 +377,7 @@ class metriquePhenologique:
                   try:
                       if not os.path.exists(lienDonnee):
                           QMessageBox.warning(self.dlg, u'Problème de lien ', u"le lien du répertoire contenant les images à decouper est inexistant ")
-                          QApplication.restoreOverrideCursor()
+                          self.active_progressbar(0)
                           return
                           
                       if not os.path.exists(lienZoneEtudes):
@@ -368,7 +395,6 @@ class metriquePhenologique:
                       QApplication.restoreOverrideCursor()
                       return
               else:
-                self.dlg.progressBar.setValue(0)
                 verifie=0
                 liste=[];
                 os.chdir(lienDonnee)
@@ -421,6 +447,8 @@ class metriquePhenologique:
                     except:           
                        QApplication.restoreOverrideCursor()
                        QMessageBox.warning(self.dlg, u'Problème découpage', u"problème lors du découpage avec une sortie 1 image/an")
+                       self.dlg.progressBar.setValue(0)
+                       self.active_progressbar(0)
                        return
                 else:#création d'une image multi_bande et pluriannuelle
                     
@@ -448,22 +476,21 @@ class metriquePhenologique:
                                 GeoTransform[3]=maxY #
                                 
                                 Projection = data.GetProjection()
-                                outputName=os.path(lienSave,'serie_tempo_'+nomDonnee+'_'+str(debutYear)+'_sur_'+str(nYear)+'ans.tif') #nom des images de sorties
+                                nom='serie_tempo_'+nomDonnee+'_'+str(debutYear)+'_sur_'+str(nYear)+'ans.tif'
+                                outputName=os.path.join(lienSave,nom) #nom des images de sorties
                                               
                                 write_data(outputName,serie,GeoTransform,Projection) # Enregistrement du NDVI
                                 verifie=1
                     except:
-                         QMessageBox.warning(self.dlg, u'Problème découpage', u"problème lors du découpage avec une sortie multi-annuelle")
                          QApplication.restoreOverrideCursor()
-                         QApplication.processEvents()
+                         QMessageBox.warning(self.dlg, u'Problème découpage', u"problème lors du découpage avec une sortie multi-annuelle")
+                         self.active_progressbar(0)
                          return
               if verifie==1:
                   self.dlg.progressBar.setValue(100)
                   QApplication.restoreOverrideCursor()
-
-
-
-
+                  QMessageBox.information(self.dlg, u'succès', u"Découpage effectué avec succès")
+                  self.active_progressbar(0)
         if self.dlg.outilPretraitement.currentIndex()==1:
             
             verifie=0
@@ -490,26 +517,32 @@ class metriquePhenologique:
                       if not os.path.exists(lienNdvi):
                           QMessageBox.warning(self.dlg, u'Problème de lien ', u"le lien du répertoire contenant les images du NDVI est inexistant ")
                           QApplication.restoreOverrideCursor()
+                          self.active_progressbar(0)
+
                           return
                           
                       if not os.path.exists(lienDoy):
                           QMessageBox.warning(self.dlg, u'Problème de lien ', u"le lien du répertoire contenant les images du DOY est inexistant ")
                           QApplication.restoreOverrideCursor()
+                          self.active_progressbar(0)
                           return
     
                       if not os.path.exists(lienSave):
                           QMessageBox.warning(self.dlg, u'Problème de lien ', u"le lien du répertoire d'enregistrement est inexistant ")
                           QApplication.restoreOverrideCursor()
+                          self.active_progressbar(0)
                           return
     
                       if nYear<0:
                           message=u"l'année de debut "+str(debutYear)+u" doit être inferieure à l'année de fin "+str(finYear)
                           QMessageBox.warning(self.dlg, u'Problème de periode ', message)
                           QApplication.restoreOverrideCursor()
+                          self.active_progressbar(0)
                           return
                   except:
                       QMessageBox.warning(self.dlg, u'Interpolation', "Problème au niveau des liens")
                       QApplication.restoreOverrideCursor()
+                      self.active_progressbar(0)
                       return
 
 
@@ -527,6 +560,7 @@ class metriquePhenologique:
                 else:
                      QMessageBox.warning(self.dlg, u'Répertoire vide ', u"le répertoire du NDVI est vide")
                      QApplication.restoreOverrideCursor()
+                     self.active_progressbar(0)
                      return
                         
                         
@@ -538,17 +572,20 @@ class metriquePhenologique:
                             listeDoy.append(element)
                 else:
                      QMessageBox.warning(self.dlg, u'Répertoire vide ', u"le répertoire du DOY est vide")
-                     QApplication.restoreOverrideCursor()                    
+                     QApplication.restoreOverrideCursor()
+                     self.active_progressbar(0)
                      return
                             
                 if len(listeDoy)==0:
                      QMessageBox.warning(self.dlg, u'Fichier .tif ', u"le répertoire du DOY ne contient pas de données .tif")
                      QApplication.restoreOverrideCursor()
+                     self.active_progressbar(0)
                      return
                      
                 if len(listeNdvi)==0:
                      QMessageBox.warning(self.dlg, u'Fichier .tif ', u"le répertoire du NDVI ne contient pas de données .tif")
                      QApplication.restoreOverrideCursor()
+                     self.active_progressbar(0)
                      return
 
 
@@ -571,8 +608,6 @@ class metriquePhenologique:
                     try:
                         verifie=1
                         for k in range(nYear+1):
-                            QApplication.processEvents()
-                            QApplication.processEvents()
                             imageNDVI=os.path.join(lienNdvi ,listeNdvi[k]);#lien qui permet d'acceder à la k-ième image
                             
                             imageDOY= os.path.join(lienDoy , listeDoy[k]); #lien qui permet d'acceder au k-ième DOY
@@ -586,8 +621,8 @@ class metriquePhenologique:
                             ndviXY=sp.empty((25),dtype='int16')  #recupère les 23 valeurs de la serie à la position (x,y)
                             doyXY=sp.empty((25),dtype='int16')  #recupère les 23 valeurs de la serie à la position (x,y)
                             
-                            annee=annee+1
                             for l in range(nl) :
+                                QApplication.processEvents()
                                 progress=progress+pas
                                 self.dlg.progressBar.setValue(progress)
                                 for c in range(nc):
@@ -618,9 +653,12 @@ class metriquePhenologique:
                             if save==1: #enregistrement de la serie après interpolation
                                 output_name=os.path.join(lienSave ,prefixe+str(annee)+'.tif') #lien d'enregistrement de la serie de l'année (année)
                                 write_data(output_name,newNdvi,GeoTransform,Projection)
+                                annee=annee+1
+
                     except:
                             QMessageBox.warning(self.dlg, u'Interpolation', u"problème lors de l'interpolation avec une sortie image par an")
                             QApplication.restoreOverrideCursor()
+                            self.active_progressbar(0)
                             return
 
 
@@ -690,6 +728,7 @@ class metriquePhenologique:
                          except: 
                             QMessageBox.warning(self.dlg, u'Interpolation', u"problème lors de l'interpolation avec une sortie pluriannuelle")
                             QApplication.restoreOverrideCursor()
+                            self.active_progressbar(0)
 
                             return
                        
@@ -699,6 +738,8 @@ class metriquePhenologique:
                          write_data(output_name,newNdvi,GeoTransform,Projection) 
             if verifie==1:
                 self.dlg.progressBar.setValue(100)
+                QApplication.restoreOverrideCursor()
+                QMessageBox.information(self.dlg, u'succès', u"Interpolation effectuée avec succès")
                 self.active_progressbar(0)
 
 #==============================================================================
@@ -712,24 +753,22 @@ class metriquePhenologique:
         Valider
         
         """
-        self.dlg.progressBar_metrique.setValue(0)
         chemin=str(self.dlg.cheminNDVI_metriqueFichier.text() )
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-        QApplication.processEvents()
+        self.active_progressbar_metrique(1)
         
         if not os.path.exists(chemin) or not os.path.exists(self.dlg.cheminOut_metrique.text()):
             if not os.path.exists(chemin):
                 QMessageBox.warning(self.dlg, u'Problème de lien ', u"le lien du fichier contenant les images du NDVI est inexistant ")
-                QApplication.restoreOverrideCursor()
+                self.active_progressbar_metrique(0)
                 return
             if not os.path.exists(self.dlg.cheminOut_metrique.text()):
                 QMessageBox.warning(self.dlg, u'Problème de lien ', u"le lien d'enregistrement est inexistant ")
-                QApplication.restoreOverrideCursor()
+                self.active_progressbar_metrique(0)
 
                 return
         else:
 
-#            try:
+            try:
 
                 [NDVI,GeoTransform,Projection]=open_data(chemin)
                 [L,C,r]=NDVI.shape
@@ -760,12 +799,12 @@ class metriquePhenologique:
                 anomalieArea=sp.empty((L,C,duree),dtype='float16')
                 anomalieAreaBef=sp.empty((L,C,duree),dtype='float16')
                 anomalieAreaAft=sp.empty((L,C,duree),dtype='float16')
-#            except:
-#               QMessageBox.warning(self.dlg, u'Déclaration ', u"Erreur lors de la déclaration des paramètres")
-#                QApplication.restoreOverrideCursor()
+            except:
+               QMessageBox.warning(self.dlg, u'Déclaration ', u"Erreur lors de la déclaration des paramètres")
+               QApplication.restoreOverrideCursor()
 
-#               return
-#            try:
+               return
+            try:
                 for k in range (duree):
 
                      deb=k*23
@@ -883,10 +922,13 @@ class metriquePhenologique:
     
     
                 self.dlg.progressBar_metrique.setValue(100)
-#            except:
-#               QMessageBox.warning(self.dlg, u'calcul de paramètre ', u"Erreur lors du calcul des parmaètres")
-#                QApplication.restoreOverrideCursor()
-                return
+                QMessageBox.information(self.dlg, u'calcul de paramètre ', u"Extraction des paramètres réussie")
+                self.active_progressbar_metrique(0)
+            except:
+               QMessageBox.warning(self.dlg, u'calcul de paramètre ', u"Erreur lors du calcul des parmaètres")
+               QMessageBox.information(self.dlg, u'succès', u"Paramètres  calculés avec succès")
+               self.active_progressbar_metrique(0)
+               return
 
     def add_action(
         self,
