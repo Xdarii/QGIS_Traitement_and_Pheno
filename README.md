@@ -1,8 +1,8 @@
 ![Logo](https://github.com/Xdarii/QGIS_Traitement_and_Pheno/blob/master/icon.png "Prétraitement et Param Pheno QGIS")
 
-# Plugin Qgis: Pour le traitement des données MODIS MOD13Q1 et d'extraction de métrique phénologique
+# Plugin Qgis: Pour le traitement des données MODIS MOD13Q1 et l'extraction de métrique phénologique
 ##MOD13Q1:
-Les données mondiales de MOD13Q1 sont fournies tous les 16 jours à une résolution spatiale de 250 mètres dans une  projection sinusoïdale  avec une fauchée qui permet de couvrir de vaste zone (2350 m). Tous les pixels d'une image ne sont pas pris à la même date car pour chaque pixel  il compare sa valeur sur les 16 jours et c'est la plus grande valeur qui est retenu.
+Les données mondiales de MOD13Q1 sont fournies tous les 16 jours à une résolution spatiale de 250 mètres dans une  projection sinusoïdale  avec une fauchée qui permet de couvrir de vaste zone (2350 Km). Tous les pixels d'une image ne sont pas pris à la même date car pour chaque pixel  il compare sa valeur sur les 16 jours et c'est la plus grande valeur qui est retenu.
 
 ##Prétraitement
 ###Découper 
@@ -24,3 +24,5 @@ L’extraction des métrique phénologique fournit entre autre la détermination
 *Pour toutes informations supplémentaires veuillez consulter le wiki*
 
 
+https://github.com/Xdarii/QGIS_Traitement_and_Pheno/wiki/M%C3%A9trique-Ph%C3%A9nologique
+https://github.com/Xdarii/QGIS_Traitement_and_Pheno/wiki/Pr%C3%A9traitement
