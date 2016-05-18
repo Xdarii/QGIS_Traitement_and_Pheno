@@ -137,8 +137,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>98</width>
-        <height>28</height>
+        <width>601</width>
+        <height>215</height>
        </rect>
       </property>
       <attribute name="label">
@@ -710,8 +710,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>98</width>
-        <height>28</height>
+        <width>601</width>
+        <height>215</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1614,7 +1614,7 @@
     </widget>
     <widget class="QLineEdit" name="cheminNDVI_metrique">
      <property name="enabled">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -1644,6 +1644,9 @@
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_cheminNDVI_metrique">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>530</x>
@@ -1663,6 +1666,9 @@
      </property>
     </widget>
     <widget class="QLabel" name="label_cheminNDVI_3">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
